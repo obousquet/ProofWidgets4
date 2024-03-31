@@ -42,7 +42,7 @@ export function GoalsLocationPresentation({ pos, goals, loc }:
 
 export default function (props: PanelWidgetProps) {
   return <details open>
-    <summary className='mv2 pointer'>Selected expressions</summary>
+    <summary className='mv2 pointer'>Selected expressions 2</summary>
     {props.selectedLocations.length > 0 ?
       props.selectedLocations.map(loc =>
         <GoalsLocationPresentation

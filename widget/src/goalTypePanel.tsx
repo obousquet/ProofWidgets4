@@ -7,7 +7,7 @@ export default function (props: PanelWidgetProps) {
   if (!g.mvarId)
     throw new Error(`Lean server 1.1.2 or newer is required.`)
   return <details open>
-    <summary className='mv2 pointer'>Main goal type</summary>
+    <summary className='mv2 pointer'>Main goal type 2</summary>
     <GoalsLocationPresentation
       pos={props.pos}
       goals={props.goals}

@@ -1,16 +1,21 @@
 import ProofWidgets.Component.Panel.SelectionPanel
 import ProofWidgets.Component.Panel.GoalTypePanel
+import ProofWidgets.Component.HtmlDisplay
 
 open ProofWidgets Jsx
 
 @[expr_presenter]
-def presenter : ExprPresenter where
-  userName := "With octopodes"
+def presenter2 : ExprPresenter where
+  userName := "Latex"
   layoutKind := .inline
   present e :=
     return <span>
-        {.text "🐙 "}<InteractiveCode fmt={← Lean.Widget.ppExprTagged e} />{.text " 🐙"}
+        {.text (← Lean.Meta.ppExpr e).pretty}
+        <img src={"https://latex.codecogs.com/png.latex?" ++ (← Lean.Meta.ppExpr e).pretty} />
       </span>
+  present_raw e :=
+    return (← Lean.Meta.ppExpr e).pretty
+
 
 example : 2 + 2 = 4 ∧ 3 + 3 = 6 := by
   with_panel_widgets [GoalTypePanel]

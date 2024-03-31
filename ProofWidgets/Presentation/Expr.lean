@@ -13,6 +13,7 @@ structure ExprPresenter where
   by an `Expr`, e.g. LaTeX) or block (think large diagram which needs dedicated space) layout. -/
   layoutKind : LayoutKind := .block
   present : Expr → MetaM Html
+  present_raw : Expr → MetaM String := fun _ => pure ""
 
 initialize exprPresenters : TagAttribute ←
   registerTagAttribute `expr_presenter
@@ -39,6 +40,7 @@ structure ExprPresentationData where
   name : Name
   userName : String
   html : Html
+  raw : String
   deriving RpcEncodable
 
 structure ExprPresentations where
@@ -68,7 +70,10 @@ where addPresenterIfApplicable (expr : ExprWithCtx) (nm : Name) (ps : Array Expr
       let html ← expr.runMetaM fun e => do
         let e ← Lean.instantiateMVars e
         p.present e
-      return ps.push ⟨nm, p.userName, html⟩
+      let raw ← expr.runMetaM fun e => do
+        let e ← Lean.instantiateMVars e
+        p.present_raw e
+      return ps.push ⟨nm, p.userName, html, raw⟩
     catch _ =>
       return ps
   | .error e =>

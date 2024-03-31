@@ -3,6 +3,42 @@ import { RpcContext, RpcSessionAtPos, RpcPtr, Name, DocumentPosition, mapRpcErro
   useAsyncPersistent } from '@leanprover/infoview'
 import HtmlDisplay, { Html } from './htmlDisplay'
 import InteractiveExpr from './interactiveExpr'
+import { mathjax } from 'mathjax-full/js/mathjax'
+import { TeX } from 'mathjax-full/js/input/tex'
+import { CHTML } from 'mathjax-full/js/output/chtml'
+import { SVG } from 'mathjax-full/js/output/svg'
+import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages'
+import { liteAdaptor } from 'mathjax-full/js/adaptors/liteAdaptor'
+import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html'
+
+const adaptor = liteAdaptor()
+RegisterHTMLHandler(adaptor)
+
+const mathjax_document = mathjax.document('', {
+  InputJax: new TeX({ packages: AllPackages }),
+  OutputJax: new CHTML({ fontCache: 'local' })
+})
+
+const mathjax_document2 = mathjax.document('', {
+  InputJax: new TeX({ packages: AllPackages }),
+  OutputJax: new SVG({ fontCache: 'local' })
+})
+
+const mathjax_options = {
+  em: 16,
+  ex: 8,
+  containerWidth: 1280
+}
+
+export function get_mathjax_html(math: string): string {
+  const node = mathjax_document.convert(math, mathjax_options)
+  return adaptor.outerHTML(node)
+}
+
+export function get_mathjax_svg(math: string): string {
+  const node = mathjax_document2.convert(math, mathjax_options)
+  return adaptor.outerHTML(node)
+}
 
 type ExprWithCtx = RpcPtr<'ProofWidgets.ExprWithCtx'>
 
@@ -10,6 +46,7 @@ interface ExprPresentationData {
   name: Name
   userName: string
   html: Html
+  raw: string
 }
 
 async function getExprPresentations(rs: RpcSessionAtPos, expr: ExprWithCtx):
@@ -54,7 +91,9 @@ export default function ({ pos, expr }: { pos: DocumentPosition, expr: ExprWithC
 
     // For explanation of flow-root see https://stackoverflow.com/a/32301823
     return <div style={{ display: 'flow-root' }}>
-      {selectionName !== 'none' &&
+      {selectionName !== 'none' && st.value.get(selectionName)!.raw !== '' &&
+        <div dangerouslySetInnerHTML={{__html: get_mathjax_svg(st.value.get(selectionName)!.raw)}} />}
+      {selectionName !== 'none' && st.value.get(selectionName)!.raw === '' &&
         <HtmlDisplay pos={pos} html={st.value.get(selectionName)!.html} />}
       {selectionName === 'none' &&
         <InteractiveExpr expr={expr} />}

@@ -272,5 +272,4 @@ axiom test_sorry {α} : α
 example {a b _c _d : Point} : ∃ L, onLine a L ∧ onLine b L := by
   with_panel_widgets [EuclideanConstructions]
     -- Place your cursor below.
-
     exact test_sorry
